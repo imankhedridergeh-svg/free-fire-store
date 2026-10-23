@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#070a12">
+
+<title>FIRE DIAMOND | Premium Store</title>
+
+<style>
+:root {
+    --black: #070a12;
+    --dark: #101827;
+    --blue: #37c9ff;
+    --ice: #b7efff;
+    --white: #f4fbff;
+    --muted: #9baec5;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: Tahoma, Arial, sans-serif;
+    color: var(--white);
+    background: var(--black);
+    line-height: 1.8;
+    overflow-x: hidden;
+}
+
+button, input {
+    font: inherit;
+}
+
+/* HEADER */
+
+header {
+    min-height: 76px;
+    padding: 15px 6%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    background: rgba(7,10,18,.96);
+    border-bottom: 1px solid #37c9ff45;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    backdrop-filter: blur(15px);
+}
+
+.logo {
+    font-size: 21px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.logo span {
+    color: var(--blue);
+}
+
+.nav {
+    display: flex;
+    gap: 18px;
+    align-items: center;
+}
+
+.nav a {
+    color: white;
+    text-decoration: none;
+    font-size: 13px;
+}
+
+.cart-button {
+    background: var(--blue);
+    color: #06111d;
+    border: 0;
+    padding: 9px 14px;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* BOOK-INSPIRED HERO */
+
+.hero {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 490px;
+    padding: 35px 5%;
+    background: #080b13;
+}
+
+.book-page {
+    padding: 35px 25px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.black-page {
+    background:
+        radial-gradient(ellipse at 20% 30%, #18253b, transparent 65%),
+        #080b13;
+    border-left: 1px solid #37c9ff35;
+    border-radius: 0 18px 18px 0;
+}
+
+.blue-page {
+    color: #061321;
+    text-align: center;
+    align-items: center;
+    background:
+        radial-gradient(circle at 50% 35%, #ffffff, transparent 20%),
+        linear-gradient(140deg, #b5efff, #43caff 48%, #1173bb);
+    border-radius: 18px 0 0 18px;
+    box-shadow: inset 0 0 40px #ffffff55;
+}
+
+.eyebrow {
+    color: var(--blue);
+    font-size: 12px;
+    letter-spacing: 3px;
+    margin-bottom: 15px;
+}
+
+.black-page h1 {
+    font-size: clamp(35px, 6vw, 66px);
+    line-height: 1.2;
+    margin-bottom: 20px;
+}
+
+.black-page h1 span {
+    color: var(--blue);
+    text-shadow: 0 0 25px #37c9ff65;
+}
+
+.black-page p {
+    color: var(--muted);
+    max-width: 430px;
+    font-size: 14px;
+}
+
+.primary-button {
+    display: inline-block;
+    width: fit-content;
+    margin-top: 25px;
+    padding: 12px 24px;
+    color: #061321;
+    background: var(--blue);
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: bold;
+    box-shadow: 0 0 22px #37c9ff35;
+}
+
+.book-mark {
+    font-size: 100px;
+    filter: drop-shadow(0 12px 25px #00639d60);
+    animation: float 3s ease-in-out infinite;
+}
+
+.blue-page h2 {
+    font-size: 28px;
+    line-height: 1.5;
+}
+
+.blue-page p {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #14354c;
+}
+
+.blue-badge {
+    margin-top: 20px;
+    padding: 8px 16px;
+    border: 1px solid #ffffffaa;
+    border-radius: 30px;
+    font-size: 12px;
+    background: #ffffff35;
+}
+
+@keyframes float {
+    0%,100% { transform: translateY(0) rotate(-3deg); }
+    50% { transform: translateY(-12px) rotate(3deg); }
+}
+
+/* FEATURES */
+
+.features {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 12px;
+    padding: 25px 5%;
+    background: #101827;
+    border-top: 1px solid #37c9ff22;
+    border-bottom: 1px solid #37c9ff22;
+}
+
+.feature {
+    text-align: center;
+    padding: 12px 5px;
+}
+
+.feature strong {
+    display: block;
+    color: var(--blue);
+    font-size: 14px;
+}
+
+.feature span {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+/* PRODUCTS */
+
+.shop {
+    padding: 65px 5%;
+    background:
+        radial-gradient(ellipse at 50% 0%, #102a43 0%, transparent 55%),
+        var(--black);
+}
+
+.section-heading {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.section-heading .eyebrow {
+    margin-bottom: 5px;
+}
+
+.section-heading h2 {
+    font-size: 29px;
+}
+
+.section-heading h2 span {
+    color: var(--blue);
+}
+
+.section-heading p {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 8px;
+}
+
+.tools {
+    max-width: 650px;
+    margin: 0 auto 25px;
+}
+
+.tools input {
+    width: 100%;
+    padding: 13px 16px;
+    color: white;
+    background: #111b2a;
+    border: 1px solid #37c9ff55;
+    border-radius: 12px;
+    outline: none;
+}
+
+.tools input:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 15px #37c9ff25;
+}
+
+.products {
+    display: grid;
+    grid-template-columns: repeat(4,minmax(0,1fr));
+    gap: 16px;
+    max-width: 1200px;
+    margin: auto;
+}
+
+.card {
+    position: relative;
+    overflow: hidden;
+    padding: 22px 14px;
+    text-align: center;
+    background: linear-gradient(145deg,#152235,#0b101b);
+    border: 1px solid #37c9ff35;
+    border-radius: 15px;
+    transition: transform .25s, border-color .25s, box-shadow .25s;
+}
+
+.card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 15%;
+    left: 15%;
+    height: 2px;
+    background: linear-gradient(90deg,transparent,var(--blue),transparent);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    border-color: var(--blue);
+    box-shadow: 0 10px 35px #008cff20;
+}
+
+.gem {
+    font-size: 39px;
+    filter: drop-shadow(0 0 12px #37c9ff50);
+}
+
+.card h3 {
+    font-size: 16px;
+    margin: 8px 0 3px;
+}
+
+.card .amount {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.price {
+    color: var(--blue);
+    font-size: 16px;
+    font-weight: bold;
+    margin: 14px 0;
+}
+
+.buy {
+    width: 100%;
+    border: 1px solid var(--blue);
+    background: #37c9ff12;
+    color: var(--ice);
+    border-radius: 9px;
+    padding: 10px 5px;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.buy:hover {
+    color: #061321;
+    background: var(--blue);
+}
+
+/* CART */
+
+.cart-section {
+    padding: 55px 5%;
+    background: linear-gradient(120deg,#0d1828,#0b0e16);
+    border-top: 1px solid #37c9ff35;
+}
+
+.cart-box {
+    max-width: 850px;
+    margin: auto;
+    padding: 25px;
+    border: 1px solid #37c9ff45;
+    border-radius: 18px;
+    background: #080d17;
+}
+
+.cart-box h2 {
+    margin-bottom: 15px;
+}
+
+.cart-box h2 span {
+    color: var(--blue);
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 0;
+    border-bottom: 1px solid #ffffff15;
+    font-size: 13px;
+}
+
+.remove {
+    color: #ff8383;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.cart-total {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 20px;
+    font-weight: bold;
+}
+
+.cart-total strong {
+    color: var(--blue);
+}
+
+.clear-button {
+    margin-top: 18px;
+    border: 1px solid #ffffff30;
+    border-radius: 9px;
+    padding: 9px 15px;
+    background: transparent;
+    color: #ddd;
+    cursor: pointer;
+}
+
+.notice {
+    max-width: 850px;
+    margin: 25px auto 0;
+    padding: 17px;
+    color: #b9c9da;
+    background: #101827;
+    border-right: 3px solid var(--blue);
+    border-radius: 8px;
+    font-size: 12px;
+}
+
+footer {
+    padding: 30px 15px;
+    text-align: center;
+    background: #05070c;
+    border-top: 1px solid #37c9ff30;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+footer strong {
+    color: var(--blue);
+}
+
+@media(max-width:850px) {
+    .products {
+        grid-template-columns: repeat(2,minmax(0,1fr));
+    }
+}
+
+@media(max-width:560px) {
+    header {
+        padding: 13px 4%;
+    }
+
+    .logo {
+        font-size: 17px;
+    }
+
+    .nav {
+        gap: 9px;
+    }
+
+    .nav a {
+        font-size: 11px;
+    }
+
+    .cart-button {
+        font-size: 11px;
+        padding: 8px;
+    }
+
+    .hero {
+        padding: 20px 4%;
+        min-height: 390px;
+    }
+
+    .book-page {
+        padding: 23px 13px;
+    }
+
+    .black-page h1 {
+        font-size: 32px;
+    }
+
+    .black-page p {
+        font-size: 11px;
+    }
+
+    .book-mark {
+        font-size: 70px;
+    }
+
+    .blue-page h2 {
+        font-size: 20px;
+    }
+
+    .blue-page p {
+        font-size: 11px;
+    }
+
+    .features {
+        padding: 15px 3%;
+        gap: 4px;
+    }
+
+    .feature strong {
+        font-size: 11px;
+    }
+
+    .feature span {
+        font-size: 9px;
+    }
+
+    .shop {
+        padding: 45px 4%;
+    }
+
+    .card {
+        padding: 17px 9px;
+    }
+
+    .price {
+        font-size: 14px;
+    }
+
+    .cart-box {
+        padding: 16px;
+    }
+}
+
+@media(prefers-reduced-motion:reduce) {
+    *,*::before,*::after {
+        animation: none !important;
+        scroll-behavior: auto !important;
+        transition: none !important;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">FIRE <span>DIAMOND</span></div>
+    <nav class="nav">
+        <a href="#products">فروشگاه</a>
+        <a href="#cart">سبد خرید</a>
+        <button class="cart-button" onclick="document.getElementById('cart').scrollIntoView({behavior:'smooth'})">
+            🛒 <span id="cartCount">۰</span>
+        </button>
+    </nav>
+</header>
+
+<main>
+
+<section class="hero">
+
+    <div class="book-page black-page">
+        <div class="eyebrow">PREMIUM GAMING STORE</div>
+        <h1>FIRE<br><span>DIAMOND</span></h1>
+        <p>
+            دنیای الماس‌ها اینجاست.<br>
+            بسته موردنظرت رو انتخاب کن و
+            وارد دنیای آبی و درخشان شو.
+        </p>
+        <a href="#products" class="primary-button">مشاهده بسته‌ها ←</a>
+    </div>
+
+    <div class="book-page blue-page">
+        <div class="book-mark">💎</div>
+        <h2>دنیای<br>الماس‌های آبی</h2>
+        <p>BLACK × DIAMOND BLUE</p>
+        <div class="blue-badge">SPECIAL COLLECTION</div>
+    </div>
+
+</section>
+
+<section class="features">
+    <div class="feature">
+        <strong>💎 ۱۲ بسته</strong>
+        <span>انتخاب از ۱۰۰ تا ۱۰٬۰۰۰ جم</span>
+    </div>
+    <div class="feature">
+        <strong>🔷 طراحی لوکس</strong>
+        <span>تم مشکی و آبی الماسی</span>
+    </div>
+    <div class="feature">
+        <strong>🛒 سبد خرید</strong>
+        <span>محاسبه مجموع قیمت</span>
+    </div>
+</section>
+
+<section class="shop" id="products">
+
+    <div class="section-heading">
+        <div class="eyebrow">DIAMOND COLLECTION</div>
+        <h2>انتخاب <span>الماس‌ها</span></h2>
+        <p>بسته مناسب خودت رو پیدا کن.</p>
+    </div>
+
+    <div class="tools">
+        <input
+            id="search"
+            type="search"
+            placeholder="🔍 جست‌وجوی تعداد جم..."
+            aria-label="جست‌وجوی بسته جم">
+    </div>
+
+    <div class="products" id="productList"></div>
+
+    <div class="notice">
+        <strong>📌 درباره قیمت‌ها:</strong><br>
+        قیمت‌ها نمونه و قابل تغییر هستند؛ نرخ زنده دلار یا قیمت تأییدشده فروشنده نیستند.
+        این نسخه نمایشی است و پرداخت یا تحویل واقعی جم انجام نمی‌دهد.
+        برای خرید، رمز عبور حساب بازی را در اختیار هیچ‌کس قرار ندهید.
+    </div>
+
+</section>
+
+<section class="cart-section" id="cart">
+
+    <div class="cart-box">
+        <h2>🛒 سبد <span>خرید</span></h2>
+
+        <div id="cartItems">
+            <p style="color:#9baec5;font-size:13px">
+                هنوز بسته‌ای انتخاب نکردی.
+            </p>
+        </div>
+
+        <div class="cart-total">
+            <span>مجموع قیمت:</span>
+            <strong id="cartTotal">۰ تومان</strong>
+        </div>
+
+        <button class="clear-button" onclick="clearCart()">
+            خالی کردن سبد
+        </button>
+    </div>
+
+</section>
+
+</main>
+
+<footer>
+    <strong>FIRE DIAMOND</strong><br>
+    فروشگاه مستقل و غیررسمی طرفداران Free Fire<br>
+    نسخه نمایشی وب‌سایت
+</footer>
+
+<script>
+const packages = [
+    {gems:100, price:292000},
+    {gems:210, price:568000},
+    {gems:310, price:840000},
+    {gems:520, price:1360000},
+    {gems:530, price:1380000},
+    {gems:1060, price:2759000},
+    {gems:1080, price:2800000},
+    {gems:2180, price:5600000},
+    {gems:3240, price:8300000},
+    {gems:4360, price:11200000},
+    {gems:5600, price:14400000},
+    {gems:10000, price:25700000}
+];
+
+const fmt = n => new Intl.NumberFormat('fa-IR').format(n);
+
+let cart = [];
+
+function renderProducts(filter = '') {
+    const list = document.getElementById('productList');
+
+    const filtered = packages.filter(p =>
+        String(p.gems).includes(filter.trim()) ||
+        fmt(p.gems).includes(filter.trim())
+    );
+
+    if (!filtered.length) {
+        list.innerHTML =
+            '<p style="color:#9baec5">بسته‌ای با این تعداد پیدا نشد.</p>';
+        return;
+    }
+
+    list.innerHTML = filtered.map(p => `
+        <article class="card">
+            <div class="gem">💎</div>
+            <h3>${fmt(p.gems)} جم</h3>
+            <p class="amount">بسته الماس</p>
+            <div class="price">${fmt(p.price)} تومان</div>
+            <button class="buy" onclick="addToCart(${p.gems})">
+                افزودن به سبد +
+            </button>
+        </article>
+    `).join('');
+}
+
+function addToCart(gems) {
+    const product = packages.find(p => p.gems === gems);
+    if (!product) return;
+
+    const existing = cart.find(item => item.gems === gems);
+
+    if (existing) {
+        existing.quantity++;
+    } else {
+        cart.push({
+            gems: product.gems,
+            price: product.price,
+            quantity: 1
+        });
+    }
+
+    renderCart();
+}
+
+function removeFromCart(gems) {
+    const existing = cart.find(item => item.gems === gems);
+
+    if (existing) {
+        existing.quantity--;
+
+        if (existing.quantity <= 0) {
+            cart = cart.filter(item => item.gems !== gems);
+        }
+    }
+
+    renderCart();
+}
+
+function clearCart() {
+    cart = [];
+    renderCart();
+}
+
+function renderCart() {
+    const items = document.getElementById('cartItems');
+    const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+    const total = cart.reduce(
+        (sum, item) => sum + item.price * item.quantity, 0
+    );
+
+    document.getElementById('cartCount').textContent = fmt(count);
+    document.getElementById('cartTotal').textContent =
+        fmt(total) + ' تومان';
+
+    if (!cart.length) {
+        items.innerHTML =
+            '<p style="color:#9baec5;font-size:13px">هنوز بسته‌ای انتخاب نکردی.</p>';
+        return;
+    }
+
+    items.innerHTML = cart.map(item => `
+        <div class="cart-item">
+            <span>
+                💎 ${fmt(item.gems)} جم × ${fmt(item.quantity)}
+            </span>
+            <span>${fmt(item.price * item.quantity)} تومان</span>
+            <button class="remove"
+                onclick="removeFromCart(${item.gems})">
+                حذف
+            </button>
+        </div>
+    `).join('');
+}
+
+document.getElementById('search').addEventListener('input', event => {
+    const digits = event.target.value.replace(/[۰-۹]/g, d =>
+        String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+    );
+
+    renderProducts(digits);
+});
+
+renderProducts();
+renderCart();
+</script>
+
+</body>
+</html>
