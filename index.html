@@ -860,31 +860,59 @@ renderCart();
     const player = document.getElementById("fd-player");
     const phone = document.getElementById("fd-phone");
     const result = document.getElementById("fd-result");
+    const serverInput = document.getElementById("fd-server");
 
-    form.addEventListener("submit", function (event) {
+    // اتصال مشترک Supabase هنگام ثبت سفارش
+
+    form.addEventListener("submit", async function (event) {
         event.preventDefault();
 
-        if (!form.reportValidity()) {
+        if (!form.reportValidity()) return;
+
+        const client = window.fdSupabase;
+        if (!client) {
+            result.textContent = "اتصال آماده نیست؛ صفحه را دوباره بارگذاری کن.";
+            result.style.color = "#ff7070";
             return;
         }
 
-        const orderId = "FD-" + Date.now().toString().slice(-8);
-        const server = document.getElementById("fd-server").value;
+        const { data: sessionData, error: sessionError } =
+            await client.auth.getSession();
 
-        localStorage.setItem("fd-order-" + orderId, JSON.stringify({
-            id: orderId,
-            gems: gems.value,
-            player: player.value,
-            server: server,
-            status: "در انتظار تأیید"
-        }));
-        result.textContent =
-            "پیش‌نویس سفارش " + orderId +
-            " | بسته: " + gems.value +
-            " جم | شناسه بازیکن: " + player.value +
-            " | برای تکمیل سفارش، قیمت و پرداخت باید تأیید شوند.";
+        if (sessionError || !sessionData.session) {
+            result.textContent =
+                "برای ثبت سفارش، ابتدا با حساب Google وارد شو.";
+            result.style.color = "#38aaff";
+            return;
+        }
 
+        result.textContent = "در حال ثبت سفارش...";
         result.style.color = "#38aaff";
+
+        const order = {
+            user_id: sessionData.session.user.id,
+            player_id: player.value.trim(),
+            package_name: gems.value + " Diamonds",
+            server: serverInput.value,
+            phone: phone.value.trim(),
+            status: "pending"
+        };
+
+        const { error } = await client
+            .from("orders")
+            .insert(order);
+
+        if (error) {
+            result.textContent =
+                "ثبت سفارش انجام نشد: " + error.message;
+            result.style.color = "#ff7070";
+            return;
+        }
+
+        result.textContent =
+            "سفارش با موفقیت ثبت شد و در انتظار بررسی است.";
+        result.style.color = "#38aaff";
+        form.reset();
     });
 })();
 </script>
@@ -1124,6 +1152,7 @@ renderCart();
         SUPABASE_URL,
         SUPABASE_KEY
     );
+    window.fdSupabase = supabaseClient;
 
     form.addEventListener("submit", function (event) {
         event.preventDefault();
