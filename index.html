@@ -889,7 +889,15 @@ renderCart();
         result.textContent = "در حال ثبت سفارش...";
         result.style.color = "#38aaff";
 
+        result.textContent = "در حال ثبت سفارش...";
+        result.style.color = "#38aaff";
+
+        const orderCode = "FD-" +
+            Date.now().toString().slice(-8) +
+            Math.floor(1000 + Math.random() * 9000);
+
         const order = {
+            order_code: orderCode,
             user_id: sessionData.session.user.id,
             player_id: player.value.trim(),
             package_name: gems.value + " Diamonds",
@@ -898,21 +906,28 @@ renderCart();
             status: "pending"
         };
 
-        const { error } = await client
-            .from("orders")
-            .insert(order);
+        try {
+            const { error } = await client
+                .from("orders")
+                .insert(order);
 
-        if (error) {
+            if (error) {
+                result.textContent =
+                    "ثبت سفارش انجام نشد: " + error.message;
+                result.style.color = "#ff7070";
+                return;
+            }
+
             result.textContent =
-                "ثبت سفارش انجام نشد: " + error.message;
+                "سفارش با موفقیت ثبت شد. کد پیگیری شما: " +
+                orderCode + " — وضعیت: در انتظار بررسی. این کد را نگه دار.";
+            result.style.color = "#38aaff";
+            form.reset();
+        } catch (error) {
+            result.textContent =
+                "ارتباط با دیتابیس برقرار نشد. دوباره تلاش کن.";
             result.style.color = "#ff7070";
-            return;
         }
-
-        result.textContent =
-            "سفارش با موفقیت ثبت شد و در انتظار بررسی است.";
-        result.style.color = "#38aaff";
-        form.reset();
     });
 })();
 </script>
@@ -1305,30 +1320,69 @@ renderCart();
     const input = document.getElementById("fd-track-id");
     const result = document.getElementById("fd-track-result");
 
-    form.addEventListener("submit", function (event) {
+    form.addEventListener("submit", async function (event) {
         event.preventDefault();
 
-        const orderId = input.value.trim().toUpperCase();
-        const savedOrder = localStorage.getItem("fd-order-" + orderId);
+        const orderCode = input.value.trim().toUpperCase();
+        const client = window.fdSupabase;
 
-        if (!savedOrder) {
-            result.textContent =
-                "سفارشی با این کد در این مرورگر پیدا نشد.";
+        if (!client) {
+            result.textContent = "اتصال آماده نیست؛ صفحه را دوباره بارگذاری کن.";
             result.style.color = "#ff7777";
             return;
         }
 
+        result.textContent = "در حال جست‌وجوی سفارش...";
+        result.style.color = "#38aaff";
+
         try {
-            const order = JSON.parse(savedOrder);
+            const { data: sessionData, error: sessionError } =
+                await client.auth.getSession();
+
+            if (sessionError || !sessionData.session) {
+                result.textContent =
+                    "برای پیگیری سفارش ابتدا با حساب Google وارد شو.";
+                result.style.color = "#ff7777";
+                return;
+            }
+
+            const { data: order, error } = await client
+                .from("orders")
+                .select("order_code, package_name, status")
+                .eq("order_code", orderCode)
+                .eq("user_id", sessionData.session.user.id)
+                .maybeSingle();
+
+            if (error) {
+                result.textContent = "خطا در بررسی سفارش: " + error.message;
+                result.style.color = "#ff7777";
+                return;
+            }
+
+            if (!order) {
+                result.textContent =
+                    "سفارشی با این کد برای حساب شما پیدا نشد.";
+                result.style.color = "#ff7777";
+                return;
+            }
+
+            const statuses = {
+                pending: "در انتظار بررسی",
+                processing: "در حال بررسی",
+                completed: "تکمیل‌شده",
+                cancelled: "لغوشده"
+            };
 
             result.textContent =
-                "کد سفارش: " + order.id +
-                " | بسته: " + order.gems +
-                " جم | وضعیت: " + order.status;
+                "کد سفارش: " + order.order_code +
+                " | بسته: " + order.package_name +
+                " | وضعیت: " +
+                (statuses[order.status] || order.status);
 
             result.style.color = "#38aaff";
         } catch (error) {
-            result.textContent = "اطلاعات سفارش قابل خواندن نیست.";
+            result.textContent =
+                "ارتباط برقرار نشد؛ دوباره تلاش کن.";
             result.style.color = "#ff7777";
         }
     });
