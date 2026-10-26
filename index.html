@@ -743,6 +743,593 @@ document.getElementById('search').addEventListener('input', event => {
 renderProducts();
 renderCart();
 </script>
+<!-- FIRE DIAMOND ORDER SECTION -->
+<style>
+.fd-order {
+    max-width: 850px;
+    margin: 35px auto;
+    padding: 22px;
+    background: #080d18;
+    border: 1px solid #168bff;
+    border-radius: 16px;
+    color: white;
+    font-family: Arial, sans-serif;
+    box-sizing: border-box;
+}
+.fd-order * {
+    box-sizing: border-box;
+}
+.fd-order h2 {
+    text-align: center;
+    color: #38aaff;
+}
+.fd-order p {
+    text-align: center;
+    color: #b9c9df;
+    line-height: 1.8;
+}
+.fd-order label {
+    display: block;
+    margin: 18px 0 8px;
+}
+.fd-order input,
+.fd-order select {
+    width: 100%;
+    padding: 13px;
+    background: #101b2d;
+    color: white;
+    border: 1px solid #23466d;
+    border-radius: 8px;
+    font-size: 15px;
+}
+.fd-order button {
+    width: 100%;
+    margin-top: 20px;
+    padding: 14px;
+    background: #087cff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+}
+.fd-order #fd-result {
+    margin-top: 15px;
+    overflow-wrap: anywhere;
+}
+</style>
 
+<section class="fd-order" id="fd-order">
+    <h2>💎 ثبت سفارش FIRE DIAMOND</h2>
+
+    <p>بسته مورد نظرت رو انتخاب کن و اطلاعات بازیکنت رو وارد کن.</p>
+
+    <form id="fd-form">
+
+        <label for="fd-gems">انتخاب بسته جم</label>
+
+        <select id="fd-gems" required>
+            <option value="100">100 Diamonds</option>
+            <option value="310">310 Diamonds</option>
+            <option value="520">520 Diamonds</option>
+            <option value="1060">1060 Diamonds</option>
+            <option value="2180">2180 Diamonds</option>
+        </select>
+<label for="fd-server">انتخاب سرور</label>
+<select id="fd-server" required>
+    <option value="ME">Middle East (خاورمیانه)</option>
+    <option value="EU">Europe (اروپا)</option>
+    <option value="NA">North America (آمریکای شمالی)</option>
+    <option value="IN">India (هند)</option>
+    <option value="Other">Other (سایر)</option>
+</select>
+        
+<label for="fd-player">Player ID</label>
+
+        <input
+            id="fd-player"
+            type="text"
+            inputmode="numeric"
+            placeholder="شناسه بازیکن"
+            pattern="[0-9]{5,20}"
+            minlength="5"
+            maxlength="20"
+            required
+        >
+
+        <label for="fd-phone">شماره موبایل</label>
+
+        <input
+            id="fd-phone"
+            type="tel"
+            inputmode="tel"
+            placeholder="شماره تماس برای پیگیری"
+            required
+        >
+
+        <button type="submit">بررسی سفارش</button>
+
+        <p id="fd-result" aria-live="polite"></p>
+    </form>
+</section>
+
+<script>
+(function () {
+    const form = document.getElementById("fd-form");
+    const gems = document.getElementById("fd-gems");
+    const player = document.getElementById("fd-player");
+    const phone = document.getElementById("fd-phone");
+    const result = document.getElementById("fd-result");
+
+    form.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        if (!form.reportValidity()) {
+            return;
+        }
+
+        const orderId = "FD-" + Date.now().toString().slice(-8);
+        const server = document.getElementById("fd-server").value;
+
+        localStorage.setItem("fd-order-" + orderId, JSON.stringify({
+            id: orderId,
+            gems: gems.value,
+            player: player.value,
+            server: server,
+            status: "در انتظار تأیید"
+        }));
+        result.textContent =
+            "پیش‌نویس سفارش " + orderId +
+            " | بسته: " + gems.value +
+            " جم | شناسه بازیکن: " + player.value +
+            " | برای تکمیل سفارش، قیمت و پرداخت باید تأیید شوند.";
+
+        result.style.color = "#38aaff";
+    });
+})();
+</script>
+<!-- FIRE DIAMOND SUPPORT -->
+<style>
+.fd-support {
+    max-width: 850px;
+    margin: 30px auto;
+    padding: 22px;
+    background: #080d18;
+    border: 1px solid #168bff;
+    border-radius: 16px;
+    color: white;
+    font-family: Arial, sans-serif;
+    box-sizing: border-box;
+}
+
+.fd-support * {
+    box-sizing: border-box;
+}
+
+.fd-support h2 {
+    text-align: center;
+    color: #38aaff;
+}
+
+.fd-support label {
+    display: block;
+    margin: 16px 0 8px;
+}
+
+.fd-support input,
+.fd-support select,
+.fd-support textarea {
+    width: 100%;
+    padding: 12px;
+    background: #101b2d;
+    color: white;
+    border: 1px solid #23466d;
+    border-radius: 8px;
+    font-size: 15px;
+}
+
+.fd-support textarea {
+    min-height: 110px;
+    resize: vertical;
+}
+
+.fd-support button {
+    width: 100%;
+    margin-top: 18px;
+    padding: 14px;
+    background: #087cff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+#fd-support-result {
+    overflow-wrap: anywhere;
+    text-align: center;
+}
+</style>
+
+<section class="fd-support" id="fd-support">
+    <h2>پشتیبانی FIRE DIAMOND</h2>
+
+    <p>سؤالت رو بنویس تا بتونیم بهتر راهنماییت کنیم.</p>
+
+    <form id="fd-support-form">
+        <label for="fd-support-phone">شماره تماس</label>
+        <input
+            id="fd-support-phone"
+            type="tel"
+            placeholder="شماره تماس"
+            required
+        >
+
+        <label for="fd-support-topic">موضوع درخواست</label>
+        <select id="fd-support-topic" required>
+            <option value="order">پیگیری سفارش</option>
+            <option value="payment">مشکل پرداخت</option>
+            <option value="account">مشکل حساب بازی</option>
+            <option value="other">سایر موارد</option>
+        </select>
+
+        <label for="fd-support-message">متن درخواست</label>
+        <textarea
+            id="fd-support-message"
+            placeholder="مشکلت رو اینجا بنویس..."
+            required
+        ></textarea>
+
+        <button type="submit">ارسال درخواست</button>
+
+        <p id="fd-support-result" aria-live="polite"></p>
+    </form>
+</section>
+
+<script>
+(function () {
+    const form = document.getElementById("fd-support-form");
+    const result = document.getElementById("fd-support-result");
+
+    form.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        if (!form.reportValidity()) {
+            return;
+        }
+
+        result.textContent =
+            "فرم بررسی شد؛ برای ارسال واقعی درخواست، باید سیستم پشتیبانی به سایت متصل شود.";
+
+        result.style.color = "#38aaff";
+    });
+})();
+</script>
+<!-- FIRE DIAMOND LOGIN -->
+<style>
+.fd-login {
+    max-width: 500px;
+    margin: 35px auto;
+    padding: 24px;
+    background: #080d18;
+    border: 1px solid #168bff;
+    border-radius: 16px;
+    color: white;
+    font-family: Arial, sans-serif;
+    box-sizing: border-box;
+}
+
+.fd-login * {
+    box-sizing: border-box;
+}
+
+.fd-login h2 {
+    text-align: center;
+    color: #38aaff;
+}
+
+.fd-login p {
+    text-align: center;
+    color: #b9c9df;
+    line-height: 1.8;
+}
+
+.fd-login label {
+    display: block;
+    margin: 16px 0 8px;
+}
+
+.fd-login input {
+    width: 100%;
+    padding: 13px;
+    background: #101b2d;
+    color: white;
+    border: 1px solid #23466d;
+    border-radius: 8px;
+    font-size: 15px;
+}
+
+.fd-login button {
+    width: 100%;
+    padding: 13px;
+    margin-top: 14px;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.fd-login .fd-primary {
+    background: #087cff;
+    color: white;
+}
+
+.fd-login .fd-google {
+    background: white;
+    color: #222;
+}
+
+.fd-login .fd-divider {
+    margin-top: 20px;
+    color: #7890ad;
+}
+
+#fd-login-result {
+    overflow-wrap: anywhere;
+}
+</style>
+
+<section class="fd-login" id="fd-login">
+    <h2>ورود به FIRE DIAMOND</h2>
+
+    <p>برای دسترسی به حساب کاربری وارد شو.</p>
+
+    <form id="fd-login-form">
+        <label for="fd-login-phone">شماره موبایل</label>
+
+        <input
+            id="fd-login-phone"
+            type="tel"
+            inputmode="tel"
+            placeholder="شماره موبایل خود را وارد کنید"
+            required
+        >
+
+        <button class="fd-primary" type="submit">
+            دریافت کد تأیید
+        </button>
+    </form>
+
+    <p class="fd-divider">یا</p>
+
+    <button class="fd-google" id="fd-google-login" type="button">
+        ورود با حساب Google
+    </button>
+
+    <p id="fd-login-result" aria-live="polite"></p>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function () {
+    const result = document.getElementById("fd-login-result");
+    const googleButton = document.getElementById("fd-google-login");
+    const form = document.getElementById("fd-login-form");
+
+    const SUPABASE_URL = "https://csxvbvgusssnomlirryo.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_6s42Ky1VqpEYIXt8WwXAOQ_kFsoMpcL";
+
+    const supabaseClient = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
+
+    form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        result.textContent = "ورود با شماره موبایل هنوز راه‌اندازی نشده است.";
+        result.style.color = "#38aaff";
+    });
+
+    googleButton.addEventListener("click", async function () {
+        result.textContent = "در حال اتصال به Google...";
+        result.style.color = "#38aaff";
+        googleButton.disabled = true;
+
+        try {
+            const { error } = await supabaseClient.auth.signInWithOAuth({
+                provider: "google",
+                options: {
+                    redirectTo: "https://imankhedridergeh-svg.github.io/free-fire-store/"
+                }
+            });
+
+            if (error) {
+                result.textContent = "خطا در ورود: " + error.message;
+                googleButton.disabled = false;
+            }
+        } catch (error) {
+            result.textContent = "اتصال برقرار نشد. دوباره تلاش کن.";
+            googleButton.disabled = false;
+        }
+    });
+})();
+</script>
+<!-- FIRE DIAMOND ORDER TRACKING -->
+<style>
+.fd-tracking {
+    max-width: 850px;
+    margin: 30px auto;
+    padding: 22px;
+    background: #080d18;
+    border: 1px solid #168bff;
+    border-radius: 16px;
+    color: white;
+    font-family: Arial, sans-serif;
+    box-sizing: border-box;
+}
+
+.fd-tracking * {
+    box-sizing: border-box;
+}
+
+.fd-tracking h2 {
+    text-align: center;
+    color: #38aaff;
+}
+
+.fd-tracking p {
+    text-align: center;
+    color: #b9c9df;
+    line-height: 1.8;
+}
+
+.fd-tracking label {
+    display: block;
+    margin: 16px 0 8px;
+}
+
+.fd-tracking input {
+    width: 100%;
+    padding: 13px;
+    background: #101b2d;
+    color: white;
+    border: 1px solid #23466d;
+    border-radius: 8px;
+    font-size: 15px;
+}
+
+.fd-tracking button {
+    width: 100%;
+    margin-top: 16px;
+    padding: 14px;
+    background: #087cff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+#fd-track-result {
+    overflow-wrap: anywhere;
+}
+</style>
+
+<section class="fd-tracking" id="fd-tracking">
+    <h2>پیگیری سفارش 💎</h2>
+
+    <p>کد سفارش خود را وارد کن تا وضعیت آن را بررسی کنی.</p>
+
+    <form id="fd-track-form">
+        <label for="fd-track-id">کد سفارش</label>
+
+        <input
+            id="fd-track-id"
+            type="text"
+            placeholder="مثال: FD-12345678"
+            required
+        >
+
+        <button type="submit">بررسی سفارش</button>
+
+        <p id="fd-track-result" aria-live="polite"></p>
+    </form>
+</section>
+
+<script>
+(function () {
+    const form = document.getElementById("fd-track-form");
+    const input = document.getElementById("fd-track-id");
+    const result = document.getElementById("fd-track-result");
+
+    form.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        const orderId = input.value.trim().toUpperCase();
+        const savedOrder = localStorage.getItem("fd-order-" + orderId);
+
+        if (!savedOrder) {
+            result.textContent =
+                "سفارشی با این کد در این مرورگر پیدا نشد.";
+            result.style.color = "#ff7777";
+            return;
+        }
+
+        try {
+            const order = JSON.parse(savedOrder);
+
+            result.textContent =
+                "کد سفارش: " + order.id +
+                " | بسته: " + order.gems +
+                " جم | وضعیت: " + order.status;
+
+            result.style.color = "#38aaff";
+        } catch (error) {
+            result.textContent = "اطلاعات سفارش قابل خواندن نیست.";
+            result.style.color = "#ff7777";
+        }
+    });
+})();
+</script>
+<!-- FIRE DIAMOND QUICK MENU -->
+<style>
+.fd-quick-menu {
+    max-width: 850px;
+    margin: 25px auto;
+    padding: 18px;
+    background: #080d18;
+    border: 1px solid #168bff;
+    border-radius: 16px;
+    box-sizing: border-box;
+}
+
+.fd-quick-menu h2 {
+    color: #38aaff;
+    text-align: center;
+    font-family: Arial, sans-serif;
+}
+
+.fd-quick-links {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.fd-quick-links a {
+    display: block;
+    padding: 15px 8px;
+    background: #101b2d;
+    border: 1px solid #23466d;
+    border-radius: 10px;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    box-sizing: border-box;
+}
+
+.fd-quick-links a:active {
+    background: #087cff;
+}
+
+@media (max-width: 400px) {
+    .fd-quick-links {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<section class="fd-quick-menu" id="fd-quick-menu">
+    <h2>دسترسی سریع 💎</h2>
+
+    <nav class="fd-quick-links">
+        <a href="#fd-order">💎 ثبت سفارش</a>
+        <a href="#fd-tracking">🔎 پیگیری سفارش</a>
+        <a href="#fd-support">🎧 پشتیبانی</a>
+        <a href="#fd-login">🔐 ورود به حساب</a>
+    </nav>
+</section>
 </body>
 </html>
