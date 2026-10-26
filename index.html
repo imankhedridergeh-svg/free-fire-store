@@ -1154,6 +1154,39 @@ renderCart();
     );
     window.fdSupabase = supabaseClient;
 
+    async function updateLoginStatus() {
+        const { data, error } = await supabaseClient.auth.getSession();
+
+        if (error) {
+            result.textContent = "بررسی وضعیت ورود ناموفق بود.";
+            result.style.color = "#ff7070";
+            return;
+        }
+
+        if (data.session) {
+            result.textContent = "با موفقیت وارد شدی: " +
+                (data.session.user.email || "حساب Google");
+            result.style.color = "#38aaff";
+            googleButton.textContent = "ورود انجام شده است";
+            googleButton.disabled = true;
+        } else {
+            googleButton.textContent = "ورود با حساب Google";
+            googleButton.disabled = false;
+        }
+    }
+
+    updateLoginStatus();
+
+    supabaseClient.auth.onAuthStateChange(function (event, session) {
+        if (session) {
+            result.textContent = "با موفقیت وارد شدی: " +
+                (session.user.email || "حساب Google");
+            result.style.color = "#38aaff";
+            googleButton.textContent = "ورود انجام شده است";
+            googleButton.disabled = true;
+        }
+    });
+
     form.addEventListener("submit", function (event) {
         event.preventDefault();
         result.textContent = "ورود با شماره موبایل هنوز راه‌اندازی نشده است.";
