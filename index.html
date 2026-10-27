@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#070a12">
-
+-
 <title>FIRE DIAMOND | Premium Store</title>
 
 <style>
@@ -1447,5 +1447,118 @@ renderCart();
         <a href="#fd-login">🔐 ورود به حساب</a>
     </nav>
 </section>
-</body>
+<!-- FIRE DIAMOND BLUE DIAMOND THEME -->
+<style>
+:root {
+    --fd-blue: #38baff;
+    --fd-ice: #a8eeff;
+    --fd-deep: #050914;
+    --fd-panel: rgba(8, 20, 39, .94);
+    --fd-border: rgba(56, 186, 255, .48);
+}
+
+/* Background */
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background:
+        radial-gradient(ellipse at 50% 0%, rgba(0, 120, 255, .17), transparent 55%),
+        radial-gradient(ellipse at 0% 60%, rgba(0, 210, 255, .07), transparent 45%),
+        #030711 !important;
+    color: #eefaff;
+}
+
+/* Main sections and cards */
+section,
+.fd-tracking,
+.fd-quick-menu {
+    border-color: var(--fd-border) !important;
+    box-shadow:
+        0 0 18px rgba(0, 140, 255, .09),
+        inset 0 1px 0 rgba(255, 255, 255, .035),
+        0 12px 35px rgba(0, 0, 0, .28);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+/* Headings */
+h1, h2, h3 {
+    text-shadow: 0 0 16px rgba(56, 186, 255, .25);
+}
+
+h1, h2 {
+    color: var(--fd-ice);
+}
+
+/* Inputs */
+input,
+textarea {
+    background: #071326 !important;
+    color: #f3fbff !important;
+    border: 1px solid rgba(56, 186, 255, .42) !important;
+    border-radius: 10px !important;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+}
+
+input:focus,
+textarea:focus {
+    border-color: var(--fd-blue) !important;
+    box-shadow: 0 0 0 3px rgba(56, 186, 255, .12);
+}
+
+/* Buttons */
+button {
+    background: linear-gradient(135deg, #087cff, #20cfff) !important;
+    color: white !important;
+    border: 1px solid rgba(174, 239, 255, .5) !important;
+    border-radius: 11px !important;
+    box-shadow:
+        0 5px 0 #0750a5,
+        0 8px 22px rgba(0, 140, 255, .2);
+    transition: transform .16s ease, box-shadow .16s ease, filter .16s ease;
+}
+
+button:active {
+    transform: translateY(3px);
+    box-shadow: 0 2px 0 #0750a5, 0 4px 12px rgba(0, 140, 255, .16);
+    filter: brightness(1.12);
+}
+
+/* Links */
+a {
+    transition: color .2s, text-shadow .2s, border-color .2s;
+}
+
+a:hover {
+    color: var(--fd-ice) !important;
+    text-shadow: 0 0 12px rgba(56, 186, 255, .6);
+}
+
+/* Diamond shine on important cards */
+.fd-quick-menu,
+.fd-tracking {
+    background:
+        linear-gradient(145deg, rgba(17, 42, 72, .55), transparent 55%),
+        var(--fd-panel) !important;
+}
+
+/* Keep mobile layout comfortable */
+img, input, textarea, select, button {
+    max-width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *, *::before, *::after {
+        transition-duration: .01ms !important;
+    }
+}
+</style><
+/body>
 </html>
