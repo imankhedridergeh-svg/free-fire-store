@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مدیریت FIRE DIAMOND</title>
+<style>
+* {
+    box-sizing: border-box;
+}
+body {
+    margin: 0;
+    padding: 20px;
+    background: #050914;
+    color: white;
+    font-family: Tahoma, Arial, sans-serif;
+}
+.container {
+    max-width: 1000px;
+    margin: auto;
+}
+h1 {
+    color: #38aaff;
+    text-align: center;
+    font-size: 25px;
+}
+.subtitle {
+    text-align: center;
+    color: #a9c7e8;
+}
+.panel {
+    margin-top: 25px;
+    padding: 18px;
+    background: #080d18;
+    border: 1px solid #168bff;
+    border-radius: 16px;
+}
+button, select {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border-radius: 8px;
+    font-size: 15px;
+}
+button {
+    background: #087cff;
+    color: white;
+    border: none;
+    font-weight: bold;
+}
+button:disabled {
+    opacity: .6;
+}
+select {
+    background: #080d18;
+    color: white;
+    border: 1px solid #168bff;
+}
+#message {
+    text-align: center;
+    overflow-wrap: anywhere;
+    line-height: 1.8;
+}
+.order {
+    margin-top: 15px;
+    padding: 15px;
+    border: 1px solid #23466d;
+    border-radius: 12px;
+    background: #101b2d;
+    overflow-wrap: anywhere;
+}
+.order p {
+    line-height: 1.8;
+    margin: 6px 0;
+}
+.order label {
+    display: block;
+    margin-top: 12px;
+}
+#orders {
+    margin-top: 15px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>👑 پنل مدیریت FIRE DIAMOND</h1>
+    <p class="subtitle">مدیریت سفارش‌های فروشگاه</p>
+
+    <section class="panel">
+        <p id="message">در حال آماده‌سازی اتصال...</p>
+        <button id="login" type="button">ورود با حساب Google</button>
+        <button id="refresh" type="button" disabled>بارگذاری سفارش‌ها</button>
+        <div id="orders"></div>
+    </section>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function () {
+    const URL = "https://csxvbvgusssnomlirryo.supabase.co";
+    const KEY = "sb_publishable_6s42Ky1VqpEYIXt8WwXAOQ_kFsoMpcL";
+
+    const client = window.supabase.createClient(URL, KEY);
+    const message = document.getElementById("message");
+    const loginButton = document.getElementById("login");
+    const refreshButton = document.getElementById("refresh");
+    const ordersBox = document.getElementById("orders");
+
+    const statuses = {
+        pending: "در انتظار بررسی",
+        processing: "در حال بررسی",
+        completed: "تکمیل‌شده",
+        cancelled: "لغوشده"
+    };
+
+    function say(text, color) {
+        message.textContent = text;
+        message.style.color = color || "#38aaff";
+    }
+
+    async function checkAdmin() {
+        const { data: sessionData, error: sessionError } =
+            await client.auth.getSession();
+
+        if (sessionError) {
+            say("بررسی ورود ناموفق بود: " + sessionError.message, "#ff7777");
+            return false;
+        }
+
+        if (!sessionData.session) {
+            refreshButton.disabled = true;
+            say("برای ادامه با حساب Google وارد شو.");
+            return false;
+        }
+
+        const { data, error } = await client.rpc("is_admin");
+
+        if (error) {
+            refreshButton.disabled = true;
+            say("بررسی مدیر ناموفق بود. تنظیمات دیتابیس را بررسی کن.", "#ff7777");
+            return false;
+        }
+
+        if (data !== true) {
+            refreshButton.disabled = true;
+            say("این حساب دسترسی مدیریت ندارد.", "#ff7777");
+            return false;
+        }
+
+        refreshButton.disabled = false;
+        loginButton.textContent = "ورود انجام شده است";
+        say("دسترسی مدیر تأیید شد.");
+        return true;
+    }
+
+    loginButton.addEventListener("click", async function () {
+        const { data } = await client.auth.getSession();
+
+        if (data.session) {
+            await checkAdmin();
+            return;
+        }
+
+        const { error } = await client.auth.signInWithOAuth({
+            provider: "google",
+            options: {
+                redirectTo: window.location.href
+            }
+        });
+
+        if (error) {
+            say("ورود انجام نشد: " + error.message, "#ff7777");
+        }
+    });
+
+    async function loadOrders() {
+        refreshButton.disabled = true;
+        ordersBox.replaceChildren();
+
+        try {
+            if (!(await checkAdmin())) return;
+
+            say("در حال دریافت سفارش‌ها...");
+
+            const { data: orders, error } = await client
+                .from("orders")
+                .select("id, order_code, player_id, package_name, amount, status, server, phone, created_at")
+                .order("created_at", { ascending: false })
+                .limit(100);
+
+            if (error) {
+                say("دریافت سفارش‌ها ناموفق بود: " + error.message, "#ff7777");
+                return;
+            }
+
+            if (!orders || orders.length === 0) {
+                say("هنوز سفارشی ثبت نشده است.");
+                return;
+            }
+
+            orders.forEach(function (order) {
+                const card = document.createElement("article");
+                card.className = "order";
+
+                function field(label, value) {
+                    const p = document.createElement("p");
+                    p.textContent = label + ": " +
+                        (value === null || value === undefined || value === ""
+                            ? "—" : String(value));
+                    card.appendChild(p);
+                }
+
+                field("کد سفارش", order.order_code);
+                field("شناسه بازیکن", order.player_id);
+                field("بسته", order.package_name);
+                field("مبلغ", order.amount);
+                field("سرور", order.server);
+                field("شماره تماس", order.phone);
+                field("تاریخ", order.created_at
+                    ? new Date(order.created_at).toLocaleString("fa-IR")
+                    : "—");
+
+                const label = document.createElement("label");
+                label.textContent = "وضعیت سفارش";
+
+                const select = document.createElement("select");
+
+                Object.keys(statuses).forEach(function (key) {
+                    const option = document.createElement("option");
+                    option.value = key;
+                    option.textContent = statuses[key];
+                    select.appendChild(option);
+                });
+
+                select.value = statuses[order.status] ? order.status : "pending";
+                label.appendChild(select);
+                card.appendChild(label);
+
+                const save = document.createElement("button");
+                save.type = "button";
+                save.textContent = "ذخیره وضعیت";
+
+                save.addEventListener("click", async function () {
+                    save.disabled = true;
+
+                    try {
+                        if (!(await checkAdmin())) return;
+
+                        const { data: updated, error: updateError } = await client
+                            .from("orders")
+                            .update({ status: select.value })
+                            .eq("id", order.id)
+                            .select("id");
+
+                        if (updateError) {
+                            say("ذخیره انجام نشد: " + updateError.message, "#ff7777");
+                        } else if (!updated || updated.length === 0) {
+                            say("سفارشی تغییر نکرد؛ دسترسی مدیر را بررسی کن.", "#ff7777");
+                        } else {
+                            say("وضعیت سفارش ذخیره شد.");
+                        }
+                    } catch (e) {
+                        say("ارتباط برقرار نشد؛ دوباره تلاش کن.", "#ff7777");
+                    } finally {
+                        save.disabled = false;
+                    }
+                });
+
+                card.appendChild(save);
+                ordersBox.appendChild(card);
+            });
+
+            say("تعداد سفارش‌های نمایش‌داده‌شده: " + orders.length);
+        } catch (e) {
+            say("خطای غیرمنتظره رخ داد. صفحه را دوباره بارگذاری کن.", "#ff7777");
+        } finally {
+            refreshButton.disabled = false;
+        }
+    }
+
+    refreshButton.addEventListener("click", loadOrders);
+
+    client.auth.onAuthStateChange(function () {
+        setTimeout(checkAdmin, 0);
+    });
+
+    checkAdmin();
+})();
+</script>
+</body>
+</html>
