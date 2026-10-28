@@ -1034,17 +1034,60 @@ renderCart();
     const form = document.getElementById("fd-support-form");
     const result = document.getElementById("fd-support-result");
 
-    form.addEventListener("submit", function (event) {
+    form.addEventListener("submit", async function (event) {
         event.preventDefault();
 
-        if (!form.reportValidity()) {
+        if (!form.reportValidity()) return;
+
+        const client = window.fdSupabase;
+        const button = form.querySelector('button[type="submit"]');
+
+        if (!client) {
+            result.textContent = "اتصال به سرور برقرار نیست؛ صفحه را دوباره بارگذاری کن.";
+            result.style.color = "#ff7070";
             return;
         }
 
-        result.textContent =
-            "فرم بررسی شد؛ برای ارسال واقعی درخواست، باید سیستم پشتیبانی به سایت متصل شود.";
+        button.disabled = true;
+        button.textContent = "در حال ارسال...";
+        result.textContent = "";
 
-        result.style.color = "#38aaff";
+        try {
+            const { data: { user }, error: authError } =
+                await client.auth.getUser();
+
+            if (authError || !user) {
+                result.textContent = "برای ارسال درخواست، ابتدا با حساب گوگل وارد شو.";
+                result.style.color = "#ffbf69";
+                return;
+            }
+
+            const phone = document.getElementById("fd-support-phone").value.trim();
+            const topic = document.getElementById("fd-support-topic").value;
+            const message = document.getElementById("fd-support-message").value.trim();
+
+            const { error } = await client
+                .from("support_requests")
+                .insert({
+                    user_id: user.id,
+                    phone: phone,
+                    topic: topic,
+                    message: message
+                });
+
+            if (error) throw error;
+
+            result.textContent = "درخواستت با موفقیت ثبت شد.";
+            result.style.color = "#38aaff";
+            form.reset();
+        } catch (error) {
+            console.error("Support request error:", error);
+            result.textContent = "ثبت درخواست انجام نشد. اتصال و مجوزهای دیتابیس را بررسی کن.";
+            result.style.color = "#ff7070";
+        } finally {
+            button.disabled = false;
+            button.textContent = "ارسال درخواست";
+        }
     });
 })();
 </script>
