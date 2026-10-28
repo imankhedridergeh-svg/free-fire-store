@@ -317,7 +317,7 @@ select {
 
             const { data: requests, error } = await client
                 .from("support_requests")
-                .select("id, phone, topic, message, status, created_at")
+                .select("id, phone, topic, message, status, admin_reply, created_at")
                 .order("created_at", { ascending: false })
                 .limit(100);
 
@@ -400,6 +400,48 @@ select {
                 });
 
                 card.appendChild(save);
+
+                const replyLabel = document.createElement("label");
+                replyLabel.textContent = "پاسخ مدیر به کاربر";
+                const replyInput = document.createElement("textarea");
+                replyInput.rows = 3;
+                replyInput.placeholder = "پاسخ خود را برای کاربر بنویس...";
+                replyInput.value = request.admin_reply || "";
+                replyLabel.appendChild(replyInput);
+                card.appendChild(replyLabel);
+
+                const saveReply = document.createElement("button");
+                saveReply.type = "button";
+                saveReply.textContent = "ذخیره پاسخ مدیر";
+
+                saveReply.addEventListener("click", async function () {
+                    saveReply.disabled = true;
+                    try {
+                        if (!(await checkAdmin())) return;
+
+                        const replyText = replyInput.value.trim();
+                        const { data: updated, error: replyError } = await client
+                            .from("support_requests")
+                            .update({ admin_reply: replyText || null })
+                            .eq("id", request.id)
+                            .select("id");
+
+                        if (replyError) {
+                            say("ذخیره پاسخ ناموفق بود: " + replyError.message, "#ff7777");
+                        } else if (!updated || updated.length === 0) {
+                            say("پاسخ ذخیره نشد؛ دسترسی مدیر را بررسی کن.", "#ff7777");
+                        } else {
+                            request.admin_reply = replyText;
+                            say("پاسخ مدیر ذخیره شد.");
+                        }
+                    } catch (e) {
+                        say("ارتباط برقرار نشد؛ دوباره تلاش کن.", "#ff7777");
+                    } finally {
+                        saveReply.disabled = false;
+                    }
+                });
+
+                card.appendChild(saveReply);
                 supportBox.appendChild(card);
             });
 

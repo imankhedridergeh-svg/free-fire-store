@@ -1080,7 +1080,7 @@ renderCart();
 
             const { data: requests, error } = await client
                 .from("support_requests")
-                .select("id, topic, message, status, created_at")
+                .select("id, topic, message, status, admin_reply, created_at")
                 .eq("user_id", user.id)
                 .order("created_at", { ascending: false })
                 .limit(100);
@@ -1107,6 +1107,11 @@ renderCart();
                 addField("موضوع", topics[request.topic] || request.topic || "—");
                 addField("متن درخواست", request.message || "—");
                 addField("وضعیت", statuses[request.status] || request.status || "—");
+                if (request.admin_reply && request.admin_reply.trim()) {
+                    addField("پاسخ پشتیبانی", request.admin_reply);
+                } else {
+                    addField("پاسخ پشتیبانی", "هنوز پاسخی ثبت نشده است.");
+                }
                 addField("تاریخ ثبت", request.created_at
                     ? new Date(request.created_at).toLocaleString("fa-IR")
                     : "—");
