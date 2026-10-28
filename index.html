@@ -1029,6 +1029,102 @@ renderCart();
     </form>
 </section>
 
+<section class="fd-support" id="fd-support-tracking">
+    <h2>پیگیری درخواست‌های پشتیبانی 💎</h2>
+    <p>وضعیت درخواست‌هایی که با حساب خودت ثبت کرده‌ای ببین.</p>
+    <button type="button" id="fd-support-load">نمایش درخواست‌های من</button>
+    <p id="fd-support-tracking-result" aria-live="polite"></p>
+    <div id="fd-support-tracking-list"></div>
+</section>
+
+<script>
+(function () {
+    const loadButton = document.getElementById("fd-support-load");
+    const result = document.getElementById("fd-support-tracking-result");
+    const list = document.getElementById("fd-support-tracking-list");
+
+    const statuses = {
+        pending: "در انتظار بررسی",
+        processing: "در حال بررسی",
+        answered: "پاسخ داده شد",
+        closed: "بسته‌شده"
+    };
+
+    const topics = {
+        order: "پیگیری سفارش",
+        payment: "مشکل پرداخت",
+        account: "مشکل حساب بازی",
+        other: "سایر موارد"
+    };
+
+    loadButton.addEventListener("click", async function () {
+        const client = window.fdSupabase;
+        list.replaceChildren();
+
+        if (!client) {
+            result.textContent = "اتصال برقرار نیست؛ صفحه را دوباره بارگذاری کن.";
+            return;
+        }
+
+        loadButton.disabled = true;
+        result.textContent = "در حال بارگذاری درخواست‌ها...";
+
+        try {
+            const { data: { user }, error: authError } =
+                await client.auth.getUser();
+
+            if (authError || !user) {
+                result.textContent = "برای مشاهدهٔ درخواست‌ها ابتدا با حساب Google وارد شو.";
+                return;
+            }
+
+            const { data: requests, error } = await client
+                .from("support_requests")
+                .select("id, topic, message, status, created_at")
+                .eq("user_id", user.id)
+                .order("created_at", { ascending: false })
+                .limit(100);
+
+            if (error) throw error;
+
+            if (!requests || requests.length === 0) {
+                result.textContent = "هنوز درخواستی با این حساب ثبت نکرده‌ای.";
+                return;
+            }
+
+            requests.forEach(function (request) {
+                const card = document.createElement("article");
+                card.style.cssText = "margin-top:12px;padding:15px;border:1px solid #23466d;border-radius:12px;background:#101b2d;overflow-wrap:anywhere;";
+
+                function addField(label, value) {
+                    const p = document.createElement("p");
+                    p.style.lineHeight = "1.8";
+                    p.textContent = label + ": " + value;
+                    card.appendChild(p);
+                }
+
+                addField("شماره درخواست", request.id);
+                addField("موضوع", topics[request.topic] || request.topic || "—");
+                addField("متن درخواست", request.message || "—");
+                addField("وضعیت", statuses[request.status] || request.status || "—");
+                addField("تاریخ ثبت", request.created_at
+                    ? new Date(request.created_at).toLocaleString("fa-IR")
+                    : "—");
+
+                list.appendChild(card);
+            });
+
+            result.textContent = "تعداد درخواست‌های شما: " + requests.length;
+        } catch (error) {
+            console.error("Support tracking error:", error);
+            result.textContent = "بارگذاری انجام نشد؛ اتصال و مجوزهای دیتابیس را بررسی کن.";
+        } finally {
+            loadButton.disabled = false;
+        }
+    });
+})();
+</script>
+
 <script>
 (function () {
     const form = document.getElementById("fd-support-form");

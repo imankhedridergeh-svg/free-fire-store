@@ -92,6 +92,11 @@ select {
         <button id="login" type="button">ورود با حساب Google</button>
         <button id="refresh" type="button" disabled>بارگذاری سفارش‌ها</button>
         <div id="orders"></div>
+
+        <hr style="margin:24px 0;border-color:#23466d">
+        <h2>درخواست‌های پشتیبانی</h2>
+        <button id="refresh-support" type="button" disabled>بارگذاری درخواست‌های پشتیبانی</button>
+        <div id="support-requests"></div>
     </section>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -105,6 +110,22 @@ select {
     const loginButton = document.getElementById("login");
     const refreshButton = document.getElementById("refresh");
     const ordersBox = document.getElementById("orders");
+    const supportRefreshButton = document.getElementById("refresh-support");
+    const supportBox = document.getElementById("support-requests");
+
+    const supportStatuses = {
+        pending: "در انتظار بررسی",
+        processing: "در حال بررسی",
+        answered: "پاسخ داده شد",
+        closed: "بسته‌شده"
+    };
+
+    const supportTopics = {
+        order: "سفارش",
+        payment: "پرداخت",
+        account: "حساب کاربری",
+        other: "سایر"
+    };
 
     const statuses = {
         pending: "در انتظار بررسی",
@@ -123,12 +144,15 @@ select {
             await client.auth.getSession();
 
         if (sessionError) {
+            refreshButton.disabled = true;
+            supportRefreshButton.disabled = true;
             say("بررسی ورود ناموفق بود: " + sessionError.message, "#ff7777");
             return false;
         }
 
         if (!sessionData.session) {
             refreshButton.disabled = true;
+            supportRefreshButton.disabled = true;
             say("برای ادامه با حساب Google وارد شو.");
             return false;
         }
@@ -137,17 +161,20 @@ select {
 
         if (error) {
             refreshButton.disabled = true;
+            supportRefreshButton.disabled = true;
             say("بررسی مدیر ناموفق بود. تنظیمات دیتابیس را بررسی کن.", "#ff7777");
             return false;
         }
 
         if (data !== true) {
             refreshButton.disabled = true;
+            supportRefreshButton.disabled = true;
             say("این حساب دسترسی مدیریت ندارد.", "#ff7777");
             return false;
         }
 
         refreshButton.disabled = false;
+        supportRefreshButton.disabled = false;
         loginButton.textContent = "ورود انجام شده است";
         say("دسترسی مدیر تأیید شد.");
         return true;
@@ -277,6 +304,114 @@ select {
             refreshButton.disabled = false;
         }
     }
+
+
+    async function loadSupportRequests() {
+        supportRefreshButton.disabled = true;
+        supportBox.replaceChildren();
+
+        try {
+            if (!(await checkAdmin())) return;
+
+            say("در حال دریافت درخواست‌های پشتیبانی...");
+
+            const { data: requests, error } = await client
+                .from("support_requests")
+                .select("id, phone, topic, message, status, created_at")
+                .order("created_at", { ascending: false })
+                .limit(100);
+
+            if (error) {
+                say("دریافت درخواست‌ها ناموفق بود: " + error.message, "#ff7777");
+                return;
+            }
+
+            if (!requests || requests.length === 0) {
+                say("هنوز درخواست پشتیبانی ثبت نشده است.");
+                return;
+            }
+
+            requests.forEach(function (request) {
+                const card = document.createElement("article");
+                card.className = "order";
+
+                function field(label, value) {
+                    const p = document.createElement("p");
+                    p.textContent = label + ": " +
+                        (value === null || value === undefined || value === ""
+                            ? "—" : String(value));
+                    card.appendChild(p);
+                }
+
+                field("شماره درخواست", request.id);
+                field("شماره تماس", request.phone);
+                field("موضوع", supportTopics[request.topic] || request.topic);
+                field("متن پیام", request.message);
+                field("تاریخ ثبت", request.created_at
+                    ? new Date(request.created_at).toLocaleString("fa-IR")
+                    : "—");
+
+                const label = document.createElement("label");
+                label.textContent = "وضعیت درخواست";
+
+                const select = document.createElement("select");
+
+                Object.keys(supportStatuses).forEach(function (key) {
+                    const option = document.createElement("option");
+                    option.value = key;
+                    option.textContent = supportStatuses[key];
+                    select.appendChild(option);
+                });
+
+                select.value = supportStatuses[request.status]
+                    ? request.status : "pending";
+                label.appendChild(select);
+                card.appendChild(label);
+
+                const save = document.createElement("button");
+                save.type = "button";
+                save.textContent = "ذخیره وضعیت";
+
+                save.addEventListener("click", async function () {
+                    save.disabled = true;
+
+                    try {
+                        if (!(await checkAdmin())) return;
+
+                        const { data: updated, error: updateError } = await client
+                            .from("support_requests")
+                            .update({ status: select.value })
+                            .eq("id", request.id)
+                            .select("id");
+
+                        if (updateError) {
+                            say("ذخیره وضعیت ناموفق بود: " + updateError.message, "#ff7777");
+                        } else if (!updated || updated.length === 0) {
+                            say("وضعیت تغییر نکرد؛ دسترسی مدیر را بررسی کن.", "#ff7777");
+                        } else {
+                            request.status = select.value;
+                            say("وضعیت درخواست پشتیبانی ذخیره شد.");
+                        }
+                    } catch (e) {
+                        say("ارتباط برقرار نشد؛ دوباره تلاش کن.", "#ff7777");
+                    } finally {
+                        save.disabled = false;
+                    }
+                });
+
+                card.appendChild(save);
+                supportBox.appendChild(card);
+            });
+
+            say("تعداد درخواست‌های پشتیبانی: " + requests.length);
+        } catch (e) {
+            say("خطای غیرمنتظره در دریافت درخواست‌ها رخ داد.", "#ff7777");
+        } finally {
+            supportRefreshButton.disabled = false;
+        }
+    }
+
+    supportRefreshButton.addEventListener("click", loadSupportRequests);
 
     refreshButton.addEventListener("click", loadOrders);
 
