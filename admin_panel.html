@@ -90,7 +90,31 @@ select {
     <section class="panel">
         <p id="message">در حال آماده‌سازی اتصال...</p>
         <button id="login" type="button">ورود با حساب Google</button>
+        <button id="logout" type="button" disabled>خروج از حساب مدیر</button>
         <button id="refresh" type="button" disabled>بارگذاری سفارش‌ها</button>
+
+        <h2>📊 آمار فروشگاه</h2>
+        <div id="dashboard" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:18px 0;">
+            <div class="order"><p>کل سفارش‌ها</p><h2 id="stat-total">۰</h2></div>
+            <div class="order"><p>در انتظار بررسی</p><h2 id="stat-pending">۰</h2></div>
+            <div class="order"><p>تکمیل‌شده</p><h2 id="stat-completed">۰</h2></div>
+            <div class="order"><p>مجموع درآمد</p><h2 id="stat-revenue">۰ تومان</h2></div>
+        </div>
+
+        <div style="margin:18px 0;">
+            <input id="order-search" type="search"
+                placeholder="جست‌وجو با کد سفارش یا شناسه بازیکن..."
+                style="width:100%;padding:12px;border-radius:8px;background:#080d18;color:white;border:1px solid #168bff;">
+            <select id="order-filter"
+                style="width:100%;padding:12px;margin-top:10px;border-radius:8px;background:#080d18;color:white;border:1px solid #168bff;">
+                <option value="all">همه سفارش‌ها</option>
+                <option value="pending">در انتظار بررسی</option>
+                <option value="processing">در حال انجام</option>
+                <option value="completed">تکمیل‌شده</option>
+                <option value="cancelled">لغوشده</option>
+            </select>
+        </div>
+
         <div id="orders"></div>
 
         <hr style="margin:24px 0;border-color:#23466d">
@@ -108,10 +132,31 @@ select {
     const client = window.supabase.createClient(URL, KEY);
     const message = document.getElementById("message");
     const loginButton = document.getElementById("login");
+    const logoutButton = document.getElementById("logout");
     const refreshButton = document.getElementById("refresh");
     const ordersBox = document.getElementById("orders");
+    const orderSearch = document.getElementById("order-search");
+    const orderFilter = document.getElementById("order-filter");
     const supportRefreshButton = document.getElementById("refresh-support");
     const supportBox = document.getElementById("support-requests");
+    function applyOrderFilters() {
+        const search = (orderSearch.value || "").trim().toLowerCase();
+        const filter = orderFilter.value;
+
+        Array.from(ordersBox.children).forEach(function (card) {
+            const text = card.textContent.toLowerCase();
+            const statusSelect = card.querySelector("select");
+            const matchesSearch = !search || text.includes(search);
+            const matchesStatus = filter === "all" ||
+                (statusSelect && statusSelect.value === filter);
+
+            card.style.display = matchesSearch && matchesStatus ? "" : "none";
+        });
+    }
+
+    orderSearch.addEventListener("input", applyOrderFilters);
+    orderFilter.addEventListener("change", applyOrderFilters);
+
 
     const supportStatuses = {
         pending: "در انتظار بررسی",
@@ -153,6 +198,8 @@ select {
         if (!sessionData.session) {
             refreshButton.disabled = true;
             supportRefreshButton.disabled = true;
+            logoutButton.disabled = true;
+            loginButton.textContent = "ورود با حساب Google";
             say("برای ادامه با حساب Google وارد شو.");
             return false;
         }
@@ -175,6 +222,7 @@ select {
 
         refreshButton.disabled = false;
         supportRefreshButton.disabled = false;
+        logoutButton.disabled = false;
         loginButton.textContent = "ورود انجام شده است";
         say("دسترسی مدیر تأیید شد.");
         return true;
@@ -219,6 +267,26 @@ select {
                 say("دریافت سفارش‌ها ناموفق بود: " + error.message, "#ff7777");
                 return;
             }
+
+            const total = orders.length;
+            const pending = orders.filter(o =>
+                o.status === "pending" || o.status === "processing"
+            ).length;
+            const completed = orders.filter(o =>
+                o.status === "completed"
+            ).length;
+            const revenue = orders.reduce((sum, o) =>
+                o.status === "completed" ? sum + (Number(o.amount) || 0) : sum
+            , 0);
+
+            document.getElementById("stat-total").textContent =
+                total.toLocaleString("fa-IR");
+            document.getElementById("stat-pending").textContent =
+                pending.toLocaleString("fa-IR");
+            document.getElementById("stat-completed").textContent =
+                completed.toLocaleString("fa-IR");
+            document.getElementById("stat-revenue").textContent =
+                revenue.toLocaleString("fa-IR") + " تومان";
 
             if (!orders || orders.length === 0) {
                 say("هنوز سفارشی ثبت نشده است.");
@@ -297,6 +365,7 @@ select {
                 ordersBox.appendChild(card);
             });
 
+            applyOrderFilters();
             say("تعداد سفارش‌های نمایش‌داده‌شده: " + orders.length);
         } catch (e) {
             say("خطای غیرمنتظره رخ داد. صفحه را دوباره بارگذاری کن.", "#ff7777");
@@ -452,6 +521,22 @@ select {
             supportRefreshButton.disabled = false;
         }
     }
+
+
+    logoutButton.addEventListener("click", async function () {
+        logoutButton.disabled = true;
+        const { error } = await client.auth.signOut();
+
+        if (error) {
+            say("خروج انجام نشد: " + error.message, "#ff7777");
+            logoutButton.disabled = false;
+            return;
+        }
+
+        ordersBox.replaceChildren();
+        supportBox.replaceChildren();
+        say("با موفقیت از حساب خارج شد.");
+    });
 
     supportRefreshButton.addEventListener("click", loadSupportRequests);
 
