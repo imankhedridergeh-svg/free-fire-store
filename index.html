@@ -889,6 +889,14 @@ renderCart();
     const result = document.getElementById("fd-result");
     const serverInput = document.getElementById("fd-server");
 
+    const prices = {
+        "100": 225000,
+        "310": 570000,
+        "520": 1300000,
+        "1060": 2600000,
+        "2180": 5200000
+    };
+
     // اتصال مشترک Supabase هنگام ثبت سفارش
 
     form.addEventListener("submit", async function (event) {
@@ -928,6 +936,7 @@ renderCart();
             user_id: sessionData.session.user.id,
             player_id: player.value.trim(),
             package_name: gems.value + " Diamonds",
+            amount: prices[gems.value],
             server: serverInput.value,
             phone: phone.value.trim(),
             status: "processing"
