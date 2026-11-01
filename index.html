@@ -815,6 +815,33 @@ renderCart();
             <option value="1060">1060 Diamonds</option>
             <option value="2180">2180 Diamonds</option>
         </select>
+
+<div id="fd-invoice" style="
+    margin-top:20px;
+    padding:18px;
+    background:linear-gradient(135deg,#101b2d,#071426);
+    border:1px solid #168bff;
+    border-radius:14px;
+    color:white;
+">
+    <h3 style="color:#38aaff;text-align:center;margin-top:0">
+        💎 پیش‌فاکتور خرید
+    </h3>
+    <p style="display:flex;justify-content:space-between">
+        <span>بسته انتخابی:</span>
+        <strong id="fd-invoice-gems">100 جم</strong>
+    </p>
+    <p style="display:flex;justify-content:space-between">
+        <span>مبلغ قابل پرداخت:</span>
+        <strong id="fd-invoice-price" style="color:#38aaff">
+            ۲۲۵٬۰۰۰ تومان
+        </strong>
+    </p>
+    <p style="text-align:center;font-size:12px;color:#91a8c5">
+        مبلغ نهایی پس از تأیید سفارش محاسبه خواهد شد.
+    </p>
+</div>
+
 <label for="fd-server">انتخاب سرور</label>
 <select id="fd-server" required>
     <option value="ME">Middle East (خاورمیانه)</option>
@@ -903,7 +930,7 @@ renderCart();
             package_name: gems.value + " Diamonds",
             server: serverInput.value,
             phone: phone.value.trim(),
-            status: "pending"
+            status: "processing"
         };
 
         try {
@@ -918,9 +945,18 @@ renderCart();
                 return;
             }
 
+            const { error: emailError } = await client.functions.invoke(
+                "notify-new-order",
+                { body: { order_code: orderCode } }
+            );
+
+            if (emailError) {
+                console.error("Email notification failed:", emailError);
+            }
+
             result.textContent =
                 "سفارش با موفقیت ثبت شد. کد پیگیری شما: " +
-                orderCode + " — وضعیت: در انتظار بررسی. این کد را نگه دار.";
+                orderCode + " — وضعیت: در حال انجام. این کد را نگه دار.";
             result.style.color = "#38aaff";
             form.reset();
         } catch (error) {
@@ -931,6 +967,35 @@ renderCart();
     });
 })();
 </script>
+<script>
+(function () {
+    const gems = document.getElementById("fd-gems");
+    const count = document.getElementById("fd-invoice-gems");
+    const price = document.getElementById("fd-invoice-price");
+
+    if (!gems || !count || !price) return;
+
+    const prices = {
+        "100": 225000,
+        "310": 570000,
+        "520": 1300000,
+        "1060": 2600000,
+        "2180": 5200000
+    };
+
+    function updateInvoice() {
+        const amount = gems.value;
+        count.textContent = Number(amount).toLocaleString("en-US") + " جم";
+        price.textContent =
+            new Intl.NumberFormat("fa-IR").format(prices[amount]) +
+            " تومان";
+    }
+
+    gems.addEventListener("change", updateInvoice);
+    updateInvoice();
+})();
+</script>
+
 <!-- FIRE DIAMOND SUPPORT -->
 <style>
 .fd-support {
@@ -1045,7 +1110,7 @@ renderCart();
 
     const statuses = {
         pending: "در انتظار بررسی",
-        processing: "در حال بررسی",
+        processing: "در حال انجام",
         answered: "پاسخ داده شد",
         closed: "بسته‌شده"
     };
@@ -1512,7 +1577,7 @@ renderCart();
 
             const statuses = {
                 pending: "در انتظار بررسی",
-                processing: "در حال بررسی",
+                processing: "در حال انجام",
                 completed: "تکمیل‌شده",
                 cancelled: "لغوشده"
             };
